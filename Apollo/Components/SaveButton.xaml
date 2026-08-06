@@ -9,6 +9,7 @@
     <Components:ApolloContextMenu x:Key="SaveContextMenu" MenuAction="ContextMenu_Action">
       <MenuItem Header="Save as..." />
       <MenuItem Header="Save a copy..." />
+      <MenuItem Header="Save compatible copy..." />
     </Components:ApolloContextMenu>
   </UserControl.Resources>
 

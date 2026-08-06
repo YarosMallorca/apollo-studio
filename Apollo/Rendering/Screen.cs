@@ -88,7 +88,13 @@ namespace Apollo.Rendering {
         delegate void DrawingHandler();
         static event DrawingHandler Drawing;
 
-        public static void Draw() => Drawing?.Invoke();
+        // Fires after every FPS-limited frame; the Underlights strip hooks this to stay in sync.
+        public static event Action Rendered;
+
+        public static void Draw() {
+            Drawing?.Invoke();
+            Rendered?.Invoke();
+        }
 
         public Screen() {
             for (int i = 0; i < 101; i++) {

@@ -151,6 +151,14 @@ namespace Apollo.Binary {
 
             if (17 <= version && version <= 28)
                 Preferences.BaseTime = reader.ReadInt64();
+
+            if (version >= 33) {
+                Preferences.UnderlightsEnabled = reader.ReadBoolean();
+                Preferences.UnderlightsTop = reader.ReadInt32();
+                Preferences.UnderlightsRight = reader.ReadInt32();
+                Preferences.UnderlightsBottom = reader.ReadInt32();
+                Preferences.UnderlightsLeft = reader.ReadInt32();
+            }
         });
         
         public static void DecodeStats(Stream input) => Decode(input, PurposeType.Unknown, (reader, version, purpose) => {
@@ -250,7 +258,12 @@ namespace Apollo.Binary {
 
                 UndoManager undo = null;
                 if (version >= 30) {
-                    undo = Decode<UndoManager>(reader, version, purpose);
+                    // Undo history is last in the file and inessential; don't fail the load over it.
+                    try {
+                        undo = Decode<UndoManager>(reader, version, purpose);
+                    } catch {
+                        undo = null;
+                    }
                 }
 
                 return new Project(bpm, macros, tracks, author, time, started, undo);
@@ -469,7 +482,13 @@ namespace Apollo.Binary {
                     time, gate, playmode, colors, positions, types, expanded
                 });
 
-            } else if (t == typeof(Flip))
+            } else if (t == typeof(Underlights))
+                return Device.Create<Underlights>(purpose, null, new object[] {
+                    (UnderlightsType)reader.ReadInt32(),
+                    reader.ReadBoolean()
+                });
+
+            else if (t == typeof(Flip))
                 return Device.Create<Flip>(purpose, null, new object[] {
                     (FlipType)reader.ReadInt32(),
                     reader.ReadBoolean()

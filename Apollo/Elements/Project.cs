@@ -191,10 +191,39 @@ namespace Apollo.Elements {
             bool ret = (result != null)
                 ? await WriteFile(sender, result, store)
                 : false;
-            
+
             if (ret) Preferences.RecentsAdd(result);
-            
+
             return ret;
+        }
+
+        // Exports a stock-Apollo-compatible copy; like "Save a copy...", doesn't touch the working file.
+        public async Task<bool> SaveCompatible(Window sender) {
+            SaveFileDialog sfd = new SaveFileDialog() {
+                Filters = new List<FileDialogFilter>() {
+                    new FileDialogFilter() {
+                        Extensions = new List<string>() {
+                            "approj"
+                        },
+                        Name = "Apollo Project"
+                    }
+                },
+                Title = "Save Compatible Copy"
+            };
+
+            string result = await sfd.ShowAsync(sender);
+            if (result == null) return false;
+
+            try {
+                if (!Directory.Exists(Path.GetDirectoryName(result))) throw new UnauthorizedAccessException();
+                File.WriteAllBytes(result, Encoder.EncodeCompatible(this));
+
+            } catch (UnauthorizedAccessException) {
+                if (sender != null) await MessageWindow.CreateWriteError(sender);
+                return false;
+            }
+
+            return true;
         }
 
         public delegate void TrackCountChangedEventHandler(int value);

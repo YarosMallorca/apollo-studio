@@ -72,6 +72,10 @@ namespace Apollo.Enums {
     public enum RotationType {
         D0, D90, D180, D270
     }
+
+    public enum UnderlightsType {
+        Square, Around
+    }
     
     public enum BlendingType {
         Normal, Screen, Multiply, Mask

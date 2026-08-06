@@ -118,6 +118,74 @@ namespace Apollo.Core {
             }
         }
 
+        public static event Changed UnderlightsChanged;
+
+        static bool _UnderlightsEnabled = false;
+        public static bool UnderlightsEnabled {
+            get => _UnderlightsEnabled;
+            set {
+                if (_UnderlightsEnabled == value) return;
+
+                _UnderlightsEnabled = value;
+                UnderlightsChanged?.Invoke();
+                Save();
+            }
+        }
+
+        static int ClampLeds(int value) => Math.Max(0, Math.Min(128, value));
+
+        static int _UnderlightsTop = 12;
+        public static int UnderlightsTop {
+            get => _UnderlightsTop;
+            set {
+                value = ClampLeds(value);
+                if (_UnderlightsTop == value) return;
+
+                _UnderlightsTop = value;
+                UnderlightsChanged?.Invoke();
+                Save();
+            }
+        }
+
+        static int _UnderlightsRight = 12;
+        public static int UnderlightsRight {
+            get => _UnderlightsRight;
+            set {
+                value = ClampLeds(value);
+                if (_UnderlightsRight == value) return;
+
+                _UnderlightsRight = value;
+                UnderlightsChanged?.Invoke();
+                Save();
+            }
+        }
+
+        static int _UnderlightsBottom = 12;
+        public static int UnderlightsBottom {
+            get => _UnderlightsBottom;
+            set {
+                value = ClampLeds(value);
+                if (_UnderlightsBottom == value) return;
+
+                _UnderlightsBottom = value;
+                UnderlightsChanged?.Invoke();
+                Save();
+            }
+        }
+
+        static int _UnderlightsLeft = 12;
+        public static int UnderlightsLeft {
+            get => _UnderlightsLeft;
+            set {
+                value = ClampLeds(value);
+                if (_UnderlightsLeft == value) return;
+
+                _UnderlightsLeft = value;
+                UnderlightsChanged?.Invoke();
+                Save();
+            }
+        }
+
         static bool _AutoCreateKeyFilter = true;
         public static bool AutoCreateKeyFilter {
             get => _AutoCreateKeyFilter;

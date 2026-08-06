@@ -81,11 +81,18 @@ namespace Apollo.Windows {
             CurrentSession = this.Get<TextBlock>("CurrentSession");
             AllTime = this.Get<TextBlock>("AllTime");
 
+            UnderlightsEnabled = this.Get<CheckBox>("UnderlightsEnabled");
+            UnderlightsTop = this.Get<TextBox>("UnderlightsTop");
+            UnderlightsRight = this.Get<TextBox>("UnderlightsRight");
+            UnderlightsBottom = this.Get<TextBox>("UnderlightsBottom");
+            UnderlightsLeft = this.Get<TextBox>("UnderlightsLeft");
+
             Preview = this.Get<LaunchpadGrid>("Preview");
         }
 
-        CheckBox AlwaysOnTop, CenterTrackContents, ChainSignalIndicators, DeviceSignalIndicators, AutoCreateKeyFilter, AutoCreateMacroFilter, AutoCreatePattern, CopyPreviousFrame, CaptureLaunchpad, EnableGestures, RememberPatternPosition, Backup, Autosave, UndoLimit, DiscordPresence, DiscordFilename, CheckForUpdates;
+        CheckBox AlwaysOnTop, CenterTrackContents, ChainSignalIndicators, DeviceSignalIndicators, AutoCreateKeyFilter, AutoCreateMacroFilter, AutoCreatePattern, CopyPreviousFrame, CaptureLaunchpad, EnableGestures, RememberPatternPosition, Backup, Autosave, UndoLimit, DiscordPresence, DiscordFilename, CheckForUpdates, UnderlightsEnabled;
         ComboBox ColorDisplayFormat, LaunchpadStyle, LaunchpadGridRotation, LaunchpadModel;
+        TextBox UnderlightsTop, UnderlightsRight, UnderlightsBottom, UnderlightsLeft;
         TextBlock ThemeHeader, CurrentSession, AllTime;
         RadioButton Monochrome, NovationPalette, CustomPalette, Dark, Light;
         HorizontalDial FPSLimit;
@@ -207,6 +214,12 @@ namespace Apollo.Windows {
 
             CheckForUpdates.IsChecked = Preferences.CheckForUpdates;
 
+            UnderlightsEnabled.IsChecked = Preferences.UnderlightsEnabled;
+            UnderlightsTop.Text = Preferences.UnderlightsTop.ToString();
+            UnderlightsRight.Text = Preferences.UnderlightsRight.ToString();
+            UnderlightsBottom.Text = Preferences.UnderlightsBottom.ToString();
+            UnderlightsLeft.Text = Preferences.UnderlightsLeft.ToString();
+
 #if !PRERELEASE
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
                 CheckForUpdates.IsChecked = false;
@@ -259,6 +272,25 @@ namespace Apollo.Windows {
         void ChainSignalIndicators_Changed(object sender, RoutedEventArgs e) => Preferences.ChainSignalIndicators = ChainSignalIndicators.IsChecked.Value;
 
         void DeviceSignalIndicators_Changed(object sender, RoutedEventArgs e) => Preferences.DeviceSignalIndicators = DeviceSignalIndicators.IsChecked.Value;
+
+        void UnderlightsEnabled_Changed(object sender, RoutedEventArgs e) => Preferences.UnderlightsEnabled = UnderlightsEnabled.IsChecked.Value;
+
+        void CommitUnderlightsLeds(TextBox box, Action<int> set, Func<int> get) {
+            if (int.TryParse(box.Text, out int value)) set(value); // The setter clamps to a valid range.
+            box.Text = get().ToString();
+        }
+
+        void UnderlightsTop_Changed(object sender, RoutedEventArgs e)
+            => CommitUnderlightsLeds(UnderlightsTop, v => Preferences.UnderlightsTop = v, () => Preferences.UnderlightsTop);
+
+        void UnderlightsRight_Changed(object sender, RoutedEventArgs e)
+            => CommitUnderlightsLeds(UnderlightsRight, v => Preferences.UnderlightsRight = v, () => Preferences.UnderlightsRight);
+
+        void UnderlightsBottom_Changed(object sender, RoutedEventArgs e)
+            => CommitUnderlightsLeds(UnderlightsBottom, v => Preferences.UnderlightsBottom = v, () => Preferences.UnderlightsBottom);
+
+        void UnderlightsLeft_Changed(object sender, RoutedEventArgs e)
+            => CommitUnderlightsLeds(UnderlightsLeft, v => Preferences.UnderlightsLeft = v, () => Preferences.UnderlightsLeft);
 
         void ColorDisplayFormat_Changed(object sender, SelectionChangedEventArgs e) => Preferences.ColorDisplayFormat = (ColorDisplayType)ColorDisplayFormat.SelectedIndex;
         
@@ -409,6 +441,23 @@ namespace Apollo.Windows {
         }
 
         void Window_Focus(object sender, PointerPressedEventArgs e) => this.Focus();
+
+        // The window steals focus on PointerPressed, so text fields grab it back and swallow keys.
+        void ULText_MouseUp(object sender, PointerReleasedEventArgs e) => ((TextBox)sender).Focus();
+
+        void ULText_KeyDown(object sender, KeyEventArgs e) {
+            if (App.Dragging) return;
+
+            if (e.Key == Key.Return) this.Focus(); // Commit via the TextBox's LostFocus handler.
+
+            e.Key = Key.None;
+        }
+
+        void ULText_KeyUp(object sender, KeyEventArgs e) {
+            if (App.Dragging) return;
+
+            e.Key = Key.None;
+        }
 
         void MoveWindow(object sender, PointerPressedEventArgs e) => BeginMoveDrag(e);
         

@@ -173,10 +173,20 @@ namespace Apollo.Core {
 
         public static void Rescan() {
             lock (locker) {
+                IMidiOutputDeviceInfo underlightsOutput = null;
+
                 foreach (IMidiInputDeviceInfo input in MidiDeviceManager.Default.InputDevices)
                     foreach (IMidiOutputDeviceInfo output in MidiDeviceManager.Default.OutputDevices)
-                        if (PortsMatch(input.Name, output.Name))
-                            Connect(input, output);
+                        if (PortsMatch(input.Name, output.Name)) {
+                            if (UnderlightsConnector.IsUnderlightsPort(input.Name))
+                                underlightsOutput = output;
+                            else Connect(input, output);
+                        }
+
+                if (underlightsOutput != null && Preferences.UnderlightsEnabled)
+                    UnderlightsConnector.Connect(underlightsOutput);
+                else if (UnderlightsConnector.Connected)
+                    UnderlightsConnector.Disconnect();
 
                 foreach (Launchpad device in Devices)
                     if (device.GetType() == typeof(Launchpad) && device.Available)

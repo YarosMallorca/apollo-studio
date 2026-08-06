@@ -128,6 +128,38 @@
             
             <Border />
 
+            <TextBlock Classes="heading" Text="Underlights" />
+            <CheckBox Click="UnderlightsEnabled_Changed" x:Name="UnderlightsEnabled" ToolTip.Tip="Detect a midiLED (Teensy) device as an Ambilight-style LED strip that mirrors the Launchpad's edge buttons">Enable Underlights (Ambilight LED strip)</CheckBox>
+            <TextBlock Text="LEDs per side (strip starts top-right, runs clockwise):" TextWrapping="Wrap" />
+            <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto">
+              <Grid.Styles>
+                <Style Selector="TextBlock">
+                  <Setter Property="VerticalAlignment" Value="Center" />
+                  <Setter Property="Margin" Value="0 0 5 0" />
+                </Style>
+                <Style Selector="TextBox">
+                  <Setter Property="Width" Value="50" />
+                  <Setter Property="Margin" Value="0 2 10 2" />
+                </Style>
+              </Grid.Styles>
+
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="Top:" />
+              <TextBox Grid.Row="0" Grid.Column="1" x:Name="UnderlightsTop" LostFocus="UnderlightsTop_Changed"
+                       PointerReleased="ULText_MouseUp" KeyDown="ULText_KeyDown" KeyUp="ULText_KeyUp" />
+              <TextBlock Grid.Row="0" Grid.Column="2" Text="Right:" />
+              <TextBox Grid.Row="0" Grid.Column="3" x:Name="UnderlightsRight" LostFocus="UnderlightsRight_Changed"
+                       PointerReleased="ULText_MouseUp" KeyDown="ULText_KeyDown" KeyUp="ULText_KeyUp" />
+
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="Bottom:" />
+              <TextBox Grid.Row="1" Grid.Column="1" x:Name="UnderlightsBottom" LostFocus="UnderlightsBottom_Changed"
+                       PointerReleased="ULText_MouseUp" KeyDown="ULText_KeyDown" KeyUp="ULText_KeyUp" />
+              <TextBlock Grid.Row="1" Grid.Column="2" Text="Left:" />
+              <TextBox Grid.Row="1" Grid.Column="3" x:Name="UnderlightsLeft" LostFocus="UnderlightsLeft_Changed"
+                       PointerReleased="ULText_MouseUp" KeyDown="ULText_KeyDown" KeyUp="ULText_KeyUp" />
+            </Grid>
+
+            <Border />
+
             <TextBlock Classes="heading" Text="Group Behavior" />
             <CheckBox Click="AutoCreateKeyFilter_Changed" x:Name="AutoCreateKeyFilter">Auto create Key Filter in new Group Chain</CheckBox>
             <CheckBox Click="AutoCreateMacroFilter_Changed" x:Name="AutoCreateMacroFilter">Auto create Macro Filter in new Group Chain</CheckBox>

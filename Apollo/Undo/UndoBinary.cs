@@ -160,8 +160,11 @@ namespace Apollo.Undo {
             typeof(Operations.UngroupUndoEntry),
             
             typeof(RenameManager.RenamedUndoEntry),
-            
+
             typeof(ChainInfo.DeviceAsChainUndoEntry),
+
+            typeof(Underlights.ModeUndoEntry),
+            typeof(Underlights.BypassUndoEntry),
         };
     }
 }

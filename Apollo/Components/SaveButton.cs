@@ -43,7 +43,14 @@ namespace Apollo.Components {
                 Program.Project.Undo.SavedChanged -= Update_Saved;
         }
 
-        async void ContextMenu_Action(string action) => await Program.Project.Save((Window)this.GetVisualRoot(), action == "Save as...");
+        async void ContextMenu_Action(string action) {
+            Window root = (Window)this.GetVisualRoot();
+
+            if (action == "Save compatible copy...")
+                await Program.Project.SaveCompatible(root);
+            else
+                await Program.Project.Save(root, action == "Save as...");
+        }
 
         protected override async void Click(PointerReleasedEventArgs e) {
             PointerUpdateKind MouseButton = e.GetCurrentPoint(this).Properties.PointerUpdateKind;

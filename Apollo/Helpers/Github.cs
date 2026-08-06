@@ -63,16 +63,8 @@ namespace Apollo.Helpers {
             return download;
         }
 
-        public static async Task<bool> ShouldUpdate() {
-            if (release == null)
-                try {
-                    await LatestRelease();
-                } catch {
-                    return false;
-                }
-
-            return Preferences.CheckForUpdates && release.Name != Program.Version && download != null;
-        }
+        public static Task<bool> ShouldUpdate()
+            => Task.FromResult(false); // Modded build: never auto-update (would replace the mod with stock).
 
         static readonly string DepsPath = $"{AppDomain.CurrentDomain.BaseDirectory}Apollo.deps.json";
 

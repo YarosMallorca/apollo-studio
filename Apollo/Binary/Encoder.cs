@@ -16,9 +16,47 @@ using Apollo.Undo;
 
 namespace Apollo.Binary {
     public static class Encoder {
+        [ThreadStatic] static bool CompatibleExport;
+
         static void EncodeHeader(BinaryWriter writer) {
             writer.Write(new char[] {'A', 'P', 'O', 'L'});
-            writer.Write(Common.version);
+            writer.Write(CompatibleExport? Common.CompatibleVersion : Common.version);
+        }
+
+        // Encodes a project stock Apollo can open: stamped with the stock version, Underlights
+        // stripped (Bypass dropped, others replaced by a signal-blocking empty Key Filter), undo emptied.
+        public static byte[] EncodeCompatible(Project project) {
+            CompatibleExport = true;
+            try {
+                return Encode((object)project);
+            } finally {
+                CompatibleExport = false;
+            }
+        }
+
+        static void EncodeCompatibleBlocker(BinaryWriter writer) {
+            // A Key Filter with no keys enabled forwards nothing, matching a non-Bypass Underlights.
+            EncodeID(writer, typeof(Device));
+            writer.Write(false); // Collapsed
+            writer.Write(true);  // Enabled
+
+            EncodeID(writer, typeof(KeyFilter));
+            for (int i = 0; i < 101; i++)
+                writer.Write(false);
+        }
+
+        static void EncodeEmptyUndo(BinaryWriter writer) {
+            EncodeID(writer, typeof(UndoManager));
+            writer.Write(UndoBinary.Version);
+
+            using (MemoryStream undoData = new MemoryStream())
+                using (BinaryWriter undoWriter = new BinaryWriter(undoData)) {
+                    undoWriter.Write(0); // History count
+                    undoWriter.Write(0); // Position
+
+                    writer.Write((int)undoData.Length);
+                    writer.Write(undoData.ToArray());
+                }
         }
 
         static void EncodeID(BinaryWriter writer, Type type) => writer.Write((byte)Array.IndexOf(Common.id, type));
@@ -99,6 +137,12 @@ namespace Apollo.Binary {
             writer.Write(Preferences.CrashPath);
             
             writer.Write(Preferences.CheckForUpdates);
+
+            writer.Write(Preferences.UnderlightsEnabled);
+            writer.Write(Preferences.UnderlightsTop);
+            writer.Write(Preferences.UnderlightsRight);
+            writer.Write(Preferences.UnderlightsBottom);
+            writer.Write(Preferences.UnderlightsLeft);
         });
 
         public static byte[] EncodeStats() => Encode(writer => {
@@ -177,7 +221,8 @@ namespace Apollo.Binary {
             writer.Write(o.Time);
             writer.Write(o.Started.ToUnixTimeSeconds());
 
-            Encode(writer, o.Undo);
+            if (CompatibleExport) EncodeEmptyUndo(writer);
+            else Encode(writer, o.Undo);
         }
 
         public static void Encode(BinaryWriter writer, Track o) {
@@ -193,10 +238,29 @@ namespace Apollo.Binary {
         public static void Encode(BinaryWriter writer, Chain o) {
             EncodeID(writer, typeof(Chain));
 
-            writer.Write(o.Count);
-            for (int i = 0; i < o.Count; i++)
-                Encode(writer, o[i]);
-            
+            if (CompatibleExport) {
+                List<Action<BinaryWriter>> deviceEncoders = new();
+
+                for (int i = 0; i < o.Count; i++) {
+                    Device device = o[i];
+
+                    if (device is Underlights underlights) {
+                        if (underlights.Bypass) continue;
+                        deviceEncoders.Add(EncodeCompatibleBlocker);
+                    } else
+                        deviceEncoders.Add(w => Encode(w, device));
+                }
+
+                writer.Write(deviceEncoders.Count);
+                foreach (Action<BinaryWriter> encode in deviceEncoders)
+                    encode(writer);
+
+            } else {
+                writer.Write(o.Count);
+                for (int i = 0; i < o.Count; i++)
+                    Encode(writer, o[i]);
+            }
+
             writer.Write(o.Name);
             writer.Write(o.Enabled);
 
@@ -312,6 +376,13 @@ namespace Apollo.Binary {
             writer.Write(o.Expanded.HasValue);
             if (o.Expanded.HasValue)
                 writer.Write(o.Expanded.Value);
+        }
+
+        public static void Encode(BinaryWriter writer, Underlights o) {
+            EncodeID(writer, typeof(Underlights));
+
+            writer.Write((int)o.Mode);
+            writer.Write(o.Bypass);
         }
 
         public static void Encode(BinaryWriter writer, Flip o) {

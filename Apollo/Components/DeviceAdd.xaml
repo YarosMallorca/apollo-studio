@@ -49,6 +49,7 @@
         <MenuItem Header="Switch" />
         <MenuItem Header="Clear" />
         <MenuItem Header="Refresh" />
+        <MenuItem Header="Underlights" />
       </MenuItem>
     </Components:ApolloContextMenu>
 

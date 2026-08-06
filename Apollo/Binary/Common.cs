@@ -10,7 +10,10 @@ using Apollo.Undo;
 
 namespace Apollo.Binary {
     public static class Common {
-        public const int version = 32;
+        // Far above stock's version line so stock Apollo always treats mod files as "newer" and
+        // warns instead of mis-reading them. CompatibleVersion is the stock version exports target.
+        public const int version = 1000;
+        public const int CompatibleVersion = 32;
 
         public static readonly Type[] id = new[] {
             typeof(Preferences),
@@ -53,7 +56,9 @@ namespace Apollo.Binary {
             typeof(LayerFilter),
             typeof(Loop),
             typeof(Refresh),
-            typeof(UndoManager)
+            typeof(UndoManager),
+
+            typeof(Underlights)
         };
     }
 }
