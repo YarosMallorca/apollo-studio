@@ -1,11 +1,11 @@
-#define MyAppName "Apollo Studio"
-#define MyAppVersion "1.8.17"
+#define MyAppName "Apollo Studio Underlights"
+#define MyAppVersion "1.8.17-underlights"
 #define MyAppPublisher "mat1jaczyyy"
 #define MyAppURL "apollo.mat1jaczyyy.com"
 #define MyAppExeName "Apollo.exe"
 
 [Setup]
-AppId={{BE7DB952-7C93-4DF7-B256-3C14F64088CF}
+AppId={{37C75645-B1E9-4DCA-9A53-CBF7EA815B50}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
