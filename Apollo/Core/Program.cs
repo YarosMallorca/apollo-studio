@@ -31,7 +31,7 @@ namespace Apollo.Core {
 
         public static readonly string UserPath = Path.Combine(Environment.GetEnvironmentVariable(
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows)? "USERPROFILE" : "HOME"
-        ), ".apollostudio"
+        ), ".apollostudio-underlights"
             #if PRERELEASE
                 + "-prerelease"
             #endif
